@@ -1,10 +1,12 @@
 #import "template.typ": *
+// #import "@preview/cuti:0.2.1": show-cn-fakebold
+// #show: show-cn-fakebold
 
 #show: template.with(
   // 笔记标题
-  title: [SimpleNote],
+  title: [Differential Manifolds],
   // 在页眉展示的短标题（选填）
-  short-title: "SimepleNote",
+  short-title: "Introduction to Differential manifolds",
   // 笔记描述（选填）
   description: [
     此模板修改自 #link("https://github.com/jskherman/jsk-lecnotes")[jsk-lecnotes]  \ Winter 2023
@@ -14,9 +16,9 @@
   // 作者信息（除 name 外，其他参数选填）
   authors: (
     (
-      name: "Akkiri",
-      github: "https://github.com/a-kkiri",
-      homepage: "https://github.com/a-kkiri",
+      name: "Junyi Xu",
+      github: "https://github.com/junyixu",
+      homepage: "https://github.com/junyixu",
       affiliations: "1,2",
     ),
   ),
@@ -38,17 +40,23 @@
   fonts: (
     (
       en-font: "Linux Libertine",
-      zh-font: "Noto Sans CJK SC",
+      // zh-font: "Source Han Serif",
+      // zh-font: "FZYanSongS-R-GB",
+      // zh-font: "FZBoYaKanSongK",
+      zh-font: "FZNewShuSong-Z10S", // 方正新书宋简体
       code-font: "DejaVu Sans Mono",
     )
   ),
   
   // 主题色
-  accent: orange,
+  accent: "#3c71b7", // 蓝黑
+  // accent: orange,
+
   // 封面背景图片（选填图片路径或 none）
-  cover-image: "./figures/cover-image.png",
+  // cover-image: "./figures/cover-image.png",
+  cover-image: none,
   // 正文背景颜色（选填 HEX 颜色或 none）
-  background-color: "#FAF9DE"
+  background-color: none
 )
 
 #include "content/chapter1.typ"

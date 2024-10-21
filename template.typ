@@ -55,8 +55,8 @@
   show raw: set text(font: fonts.code-font, 10pt)
 
   // 设置中文粗体，斜体
-  show strong: set text(fill: accent-color, font: (fonts.en-font, fonts.zh-font))
-  show emph: set text(font: (fonts.en-font, fonts.zh-font))
+  show strong: set text(font: (fonts.en-font, "FZYanSongS-B-GB"))
+  show emph: set text(font: (fonts.en-font, "STKaiti"))
 
   // 设置文档元数据
   set document(title: title, author: authors.map(author => author.name))
@@ -71,7 +71,7 @@
     if it.body.has("text") and it.body.text in author-names {
       it
     } else {
-      underline(stroke: (dash: "densely-dotted"), text(fill: blue, it)) 
+      underline(stroke: (dash: "densely-dotted"), text(fill: eastern, it)) 
     }
   }
 
@@ -170,12 +170,16 @@
     level: 1
   ): it => box(width: 100%)[
     #set align(left)
-    #set text(fill: accent-color)
-    #set heading(numbering: "章节 1. ")
+    // #set text(fill: accent-color, font: (fonts.en-font, "FZYanSongS-DB-GB")) // 方正颜宋中粗
+    #set text(fill: accent-color, font: (fonts.en-font, "FZCuQian-M17S"))
+    #set heading(numbering: "1. ")
     #it
     #v(-12pt)
     #line(length:100%, stroke: gray)
   ]
+
+// 配置其他级标题
+show heading: set text(fill: accent-color, font: (fonts.en-font, "FZYanSongS-DB-GB"))
 
   // 配置公式的编号和间距
   set math.equation(
@@ -379,14 +383,69 @@
   )
 }
 
-#let definition = thmenv(
-  "definition",
-  boxcounting, //base counter name
-  2, // number of base number levels to use
-  (name, number, body) => {
-    notebox(name, number, body, "定义", defSvg, orange)
+#let showy-thm(
+  identifier,
+  head,
+  color: blue,
+  symbol: "♥",
+  ..showy-args,
+  supplement: auto,
+  base: "heading",
+  base_level: none,
+) = {
+  let showy-fmt(name, number, body, ..args) = {
+    showybox(
+      title-style: (
+        boxed-style: (
+          anchor: (
+            x: left, // https://github.com/Pablo-Gonzalez-Calderon/showybox-package/blob/081b596cbbaaa275e154eb982833ec7410d13c29/examples/examples.typ#L133
+            y: horizon
+          ),
+          radius: (top-left: 10pt, bottom-right: 10pt, rest: 0pt),
+        )
+      ),
+      title: {
+        head
+        text(font: "FZYanSongS-DB-GB")[#number]
+        if name != none {
+          [（#text(font: "FZYanSongS-DB-GB", size: 13pt)[#name]）]
+        }
+      },
+      frame: (
+        border-color: color.lighten(5%),
+        title-color: color,
+        body-color: color.lighten(95%),
+        footer-color: color.lighten(80%),
+      ),
+      ..args.named(),
+      {
+        body
+        place(
+          bottom + right,
+          dy: 0pt + 5pt, // Account for inset of block
+          dx: 9pt + 0pt,
+          text(fill: color)[#symbol]
+        )
+      }
+    )
   }
-).with(numbering: boxnumbering)
+  if supplement == auto {
+    supplement = head
+  }
+  thmenv(
+    identifier,
+    "heading",
+    none,
+    showy-fmt,
+  ).with(supplement: supplement)
+}
+
+#let definition  = showy-thm("definition", text(font: "FZXingKai-S04S", size: 15pt)[定义], color: rgb("#00a652"), symbol: "♣").with(numbering: "1.1")
+#let theorem = showy-thm("theorem", color: rgb("#f57f17"), text(font: "FZXingKai-S04S", size: 15pt)[定理]).with(numbering: "1.1")
+#let proposition = showy-thm("proposition", color: rgb("#00a6e8"), text(font: "FZXingKai-S04S", size: 15pt)[命题], symbol: "♠").with(numbering: "1.1")
+#let lemma = showy-thm("lemma", "引理", color: rgb("#00a652"), symbol: "♣").with(numbering: "1.1")
+// #let lemma = showy-thm("lemma ", "引理", color: eastern).with(numbering: "1.1")
+// #let proof = thmproof("proof", "Proof")
 
 #let example = thmenv(
   "example",
@@ -396,6 +455,25 @@
     notebox(name, number, body, "示例", egSvg, blue)
   }
 ).with(numbering: boxnumbering)
+
+#let thmplainn = thmbox.with(
+padding: (top: 0em, bottom: 0em),
+breakable: true,
+inset: (top: 0em, left: 1.2em, right: 1.2em),
+namefmt: name => text(font: "FZYanSongS-DB-GB", fill: green)[(#name)],
+titlefmt: body=>text(font: "FZXingKai-S04S", size: 12pt, fill: green)[#body],
+)
+
+#let example  = thmplainn(
+"example",
+ // identifier
+text(font: "FZXingKai-S04S", size: 15pt, fill: green)[例题]
+// "例题"
+// namefmt: x=>text(font: "FZXingKai-S04S", size: 15pt, fill: green)[例题],
+// namefmt: x=>[#x]
+ // head
+// fill: rgb("#e8e8f8")
+)
 
 #let tip = thmenv(
   "tip",
@@ -421,23 +499,5 @@
   2,
   (name, number, body) => {
     notebox(name, number, body, "引用", quoteSvg, eastern)
-  }
-).with(numbering: boxnumbering)
-
-#let theorem = thmenv(
-  "theorem",
-  boxcounting,
-  2,
-  (name, number, body) => {
-    notebox(name, number, body, "定理", thmSvg, yellow)
-  }
-).with(numbering: boxnumbering)
-
-#let proposition = thmenv(
-  "proposition",
-  boxcounting,
-  2,
-  (name, number, body) => {
-    notebox(name, number, body, "命题", propSvg, navy)
   }
 ).with(numbering: boxnumbering)
